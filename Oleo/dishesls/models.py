@@ -34,8 +34,6 @@ class Food(models.Model):
 
 class Coment(models.Model):
     title = models.TextField()
-    name = models.CharField(max_length=50)
-    kartinka = models.TextField()
 
     def __str__ (self):
         return self.name
