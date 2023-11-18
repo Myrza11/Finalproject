@@ -32,3 +32,15 @@ class Food(models.Model):
         verbose_name_plural = 'Еды'
         ordering = ['name']
 
+class Coment(models.Model):
+    title = models.TextField()
+    name = models.CharField(max_length=50)
+    kartinka = models.TextField()
+
+    def __str__ (self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'Коментарий'
+        verbose_name_plural = 'Коментарии'
+        ordering = ['name']
