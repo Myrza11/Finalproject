@@ -15,8 +15,3 @@ class FoodSerializer(serializers.ModelSerializer):
     class Meta:
         model = Food
         fields = '__all__'
-        
-class ComentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Coment
-        fields = '__all__'

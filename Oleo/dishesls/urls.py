@@ -10,9 +10,6 @@ urlpatterns = [
     path('update_food/<int:pk>', FoodUpdateView.as_view()),
     path('list_food/', FoodListView.as_view()),
     path('destroy_food/<int:pk>', FoodDestroyView.as_view()),
-    path('create_coment/', ComentCreateView.as_view()),
-    path('update_coment/<int:pk>', ComentUpdateView.as_view()),
-    path('list_coment/', ComentListView.as_view()),
-    path('destroy_coment/<int:pk>', ComentDestroyView.as_view()), 
-    
+
+
 ]

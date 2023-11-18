@@ -42,20 +42,3 @@ class FoodDestroyView(generics.RetrieveDestroyAPIView):
     serializer_class = FoodSerializer
     queryset = Food.objects.all()
 
-class ComentUpdateView(generics.RetrieveUpdateAPIView):
-    serializer_class = ComentSerializer
-    queryset = Coment.objects.all()
-
-
-class ComentListView(generics.ListAPIView):
-    serializer_class = ComentSerializer
-    queryset = Coment.objects.all()
-
-
-class ComentDestroyView(generics.RetrieveDestroyAPIView):
-    serializer_class = ComentSerializer
-    queryset = Coment.objects.all()
-
-
-class ComentCreateView(generics.CreateAPIView):
-    serializer_class = ComentSerializer
