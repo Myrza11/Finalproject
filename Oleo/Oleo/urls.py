@@ -38,7 +38,7 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/v1/', include('dishesls.urls')),
+    path('api/v1/food/', include('dishesls.urls')),
     path('api/v1/gpt/', include('gptchat.urls')),
     path('api/v1/comments/', include('commentslike.urls')),
     path('api/v1/regauth/', include('regauth.urls'))
