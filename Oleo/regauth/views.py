@@ -9,12 +9,12 @@ from rest_framework import status
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
 
-
+from .forms import CaptchaSerializer
 
 
 
 class UserRegistrationView(APIView):
-    #permission_classes = [AllowAny]
+    permission_classes = [AllowAny]
 
     def post(self, request):
         serializer = UserRegistrationSerializer(data=request.data)
@@ -29,6 +29,8 @@ class CustomUserLoginView(TokenObtainPairView):
     pass
 
 class CustomUserTokenRefreshView(APIView):
+    
+
     def post(self, request, *args, **kwargs):
         try:
             refresh_token = request.data['refresh']
@@ -38,3 +40,15 @@ class CustomUserTokenRefreshView(APIView):
                              'refresh':token}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_401_UNAUTHORIZED)
+        
+
+class CaptchaView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        serializer = CaptchaSerializer(data=request.data)
+        if serializer.is_valid():
+            # Captcha is valid, continue with your logic
+            return Response({'message': 'Captcha is valid'})
+        else:
+            return Response(serializer.errors, status=400)
