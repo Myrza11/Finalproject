@@ -19,3 +19,8 @@ class CommentDestroyView(generics.RetrieveDestroyAPIView):
 
 class CommentCreateView(generics.CreateAPIView):
     serializer_class = CommentSerializer
+
+
+class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = CommentSerializer
+    queryset = Comment.objects.all()

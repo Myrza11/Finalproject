@@ -15,16 +15,14 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Dish',
+            name='Comment',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('recipe', models.TextField()),
+                ('text', models.TextField()),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('likes', models.ManyToManyField(blank=True, related_name='comment_likes', to=settings.AUTH_USER_MODEL)),
+                ('parent_comment', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='replies', to='commentslike.comment')),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
-            options={
-                'verbose_name': 'личная еда',
-                'verbose_name_plural': 'личные блюда',
-                'ordering': ['user'],
-            },
         ),
     ]

@@ -1,11 +1,12 @@
 
 
 # Create your models here.
+from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User
 
 class Dish(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     recipe = models.TextField()
 
     def __str__ (self):

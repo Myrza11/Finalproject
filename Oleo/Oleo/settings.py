@@ -38,10 +38,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'dishesls.apps.DisheslsConfig',
+    'gptchat.apps.GptchatConfig',
+    'commentslike.apps.CommentslikeConfig',
+    'regauth.apps.RegauthConfig',
     'rest_framework',
     'rest_framework.authtoken',
-    'djoser',
-    'gptchat.apps.GptchatConfig',
+    'rest_framework_simplejwt',
 ]
 
 MIDDLEWARE = [
@@ -104,11 +106,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.TokenAuthentication',
-    ),
-}
+
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
@@ -131,4 +129,17 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+LOGIN_URL = '/accounts/login/'
+LOGIN_REDIRECT_URL = '/'
 
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ),
+}
+AUTH_USER_MODEL = 'regauth.CustomUsers'
