@@ -32,6 +32,13 @@ class DishCreateView(generics.CreateAPIView):
         }
 
         response = requests.post(url, headers=headers, json=data)
+        print(response.text)
+
+        if response.status_code == 200:
+            print(response.json())
+        else:
+            print(f"Error: {response.status_code}")
+            print(response.text) 
 
         print(response.status_code)
         print(response.json())
@@ -42,3 +49,4 @@ class DishCreateView(generics.CreateAPIView):
         dish.save()
 
         return Response({"message": "Ingredients received and processed successfully. Dish saved."})
+
