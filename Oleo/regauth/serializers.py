@@ -52,3 +52,11 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
         send_mail(subject, message, from_email, recipient_list, fail_silently=False)
         return user
+    
+
+
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)

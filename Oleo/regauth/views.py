@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
-
+from rest_framework.permissions import IsAuthenticated
 from .forms import CaptchaSerializer
 
 
@@ -96,6 +96,29 @@ class CustomUserTokenRefreshView(APIView):
                              'refresh':token}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_401_UNAUTHORIZED)
+        
+
+
+class ChangePasswordView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = ChangePasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            user = request.user
+            old_password = serializer.data.get("old_password")
+            new_password = serializer.data.get("new_password")
+
+            # Проверка старого пароля
+            if not user.check_password(old_password):
+                return Response({"detail": "Old password is incorrect."}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Установка нового пароля
+            user.set_password(new_password)
+            user.save()
+
+            return Response({"detail": "Password changed successfully."}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
 
 class CaptchaView(APIView):
