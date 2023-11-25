@@ -121,6 +121,23 @@ class ChangePasswordView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
 
+class ChangeUsernameView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = ChangeUsernameSerializer(data=request.data)
+        if serializer.is_valid():
+            user = request.user
+            new_username = serializer.data.get("new_username")
+
+            # Изменение username
+            user.username = new_username
+            user.save()
+
+            return Response({"detail": "Username changed successfully."}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 class CaptchaView(APIView):
     permission_classes = [AllowAny]
 
