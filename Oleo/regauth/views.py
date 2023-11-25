@@ -12,17 +12,73 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .forms import CaptchaSerializer
 
 
+'''
+class UserRegistrationView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = UserRegistrationSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def post(self, request):
+        confirmation_code = request.data.get('confirmation_code')
+        if not confirmation_code:
+            return Response({'error': 'Confirmation code is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = CustomUsers.objects.get(confirmation_code=confirmation_code, is_active=False)
+        except CustomUsers.DoesNotExist:
+            return Response({'error': 'Invalid or expired confirmation code.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Подтвердите email пользователя
+        user.is_active = True
+        user.save()
+
+        return Response({'message': 'Email confirmed successfully.'}, status=status.HTTP_200_OK)'''
+
 
 class UserRegistrationView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
         serializer = UserRegistrationSerializer(data=request.data)
-
         if serializer.is_valid():
-            serializer.save()
+            user = serializer.save()
+
+            # Отправка электронной почты с кодом подтверждения
+            confirmation_code = user.confirmation_code
+            subject = 'Confirmation code'
+            message = f'Your confirmation code is: {confirmation_code}'
+            from_email = 'bapaevmyrza038@gmail.com'  # Укажите ваш отправительский email
+            recipient_list = [user.email]
+
+            # Ваш код отправки почты (send_mail)...
+            send_mail(subject, message, from_email, recipient_list, fail_silently=False)
+
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request):
+        confirmation_code = request.data.get('confirmation_code')
+        if not confirmation_code:
+            return Response({'error': 'Confirmation code is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = CustomUsers.objects.get(confirmation_code=confirmation_code, is_active=False)
+        except CustomUsers.DoesNotExist:
+            return Response({'error': 'Invalid or expired confirmation code.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Подтверждение email пользователя
+        user.is_active = True
+        user.save()
+
+        return Response({'message': 'Email confirmed successfully.'}, status=status.HTTP_200_OK)
+    
+
+
+
 
 class CustomUserLoginView(TokenObtainPairView):
     # permission_classes = [AllowAny]
