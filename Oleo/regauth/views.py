@@ -1,6 +1,8 @@
+from django.conf import settings
 from django.shortcuts import render
 
 # Create your views here.
+from .models import ConfirmationCode
 from rest_framework.permissions import AllowAny
 from .serializers import *
 from rest_framework.views import APIView
@@ -10,8 +12,8 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
 from .forms import CaptchaSerializer
-
-
+from rest_framework import generics, status
+from django.contrib.auth.views import LogoutView
 '''
 class UserRegistrationView(APIView):
     permission_classes = [AllowAny]
@@ -135,6 +137,166 @@ class ChangeUsernameView(APIView):
             user.save()
 
             return Response({"detail": "Username changed successfully."}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+
+
+'''
+class ForgotPasswordView(generics.CreateAPIView):
+    serializer_class = ForgotPasswordSerializer
+    queryset = CustomUsers.objects.all()  # Это свойство queryset остается
+    permission_classes = [AllowAny]
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        email = serializer.validated_data['email']
+
+        # Получаем QuerySet всех пользователей с заданным адресом электронной почты
+        users = CustomUsers.objects.filter(email=email)
+
+        if not users.exists():
+            return Response({'error': 'User with this email does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Генерация и отправка кода подтверждения
+        confirmation_code = get_random_string(length=20)
+
+        # Обновляем confirmation_code для всех пользователей в QuerySet
+        users.update(confirmation_code=confirmation_code)
+
+        # Отправка кода на email пользователя (первому пользователю из QuerySet)
+        subject = 'Confirmation Code'
+        message = f'Your confirmation code is: {confirmation_code}'
+        from_email = settings.EMAIL_HOST_USER
+        recipient_list = [users[0].email]
+
+        send_mail(subject, message, from_email, recipient_list, fail_silently=False)
+
+        return Response({'message': 'Confirmation code sent successfully.'})'''
+
+
+class ForgotPasswordView(generics.CreateAPIView):
+    serializer_class = ForgotPasswordSerializer
+    queryset = CustomUsers.objects.all()
+    permission_classes = [AllowAny]
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        email = serializer.validated_data['email']
+
+        # Получаем QuerySet всех пользователей с заданным адресом электронной почты
+        users = CustomUsers.objects.filter(email=email)
+
+        if not users.exists():
+            return Response({'error': 'User with this email does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Генерация кода подтверждения
+        confirmation_code = get_random_string(length=20)
+
+        # Создание объекта ConfirmationCode для пользователя
+        user = users[0]  # Предполагаем, что email уникален
+        ConfirmationCode.objects.create(user=user, code=confirmation_code)
+
+        # Отправка кода на email пользователя
+        subject = 'Confirmation Code'
+        message = f'Your confirmation code is: {confirmation_code}'
+        from_email = settings.EMAIL_HOST_USER
+        recipient_list = [user.email]
+
+        send_mail(subject, message, from_email, recipient_list, fail_silently=False)
+
+        return Response({'message': 'Confirmation code sent successfully.'})
+
+
+
+'''
+class ResetPasswordView(generics.CreateAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = ResetPasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            user = request.user
+            confirmation_code = serializer.data.get("confirmation_code")
+            new_password = serializer.data.get("new_password")
+
+            # Проверка кода подтверждения
+            try:
+                confirmation = ConfirmationCode.objects.get(user=user, code=confirmation_code)
+            except ConfirmationCode.DoesNotExist:
+                return Response({"detail": "Invalid or expired confirmation code."}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Установка нового пароля
+            user.set_password(new_password)
+            user.save()
+
+            # Удаление использованного кода подтверждения
+            confirmation.delete()
+
+            return Response({"detail": "Password changed successfully."}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)'''
+
+
+'''
+class ResetPasswordView(generics.CreateAPIView):
+    permission_classes = [AllowAny]  # Разрешено для всех (аутентифицированных и неаутентифицированных) пользователей
+
+    def post(self, request):
+        serializer = ResetPasswordSerializer(data=request.data)
+        
+        if serializer.is_valid():
+            email = serializer.data.get("email")
+            confirmation_code = serializer.data.get("confirmation_code")
+            new_password = serializer.data.get("new_password")
+
+            # Проверка кода подтверждения
+            try:
+                confirmation = ConfirmationCode.objects.get(user__email=email, code=confirmation_code)
+            except ConfirmationCode.DoesNotExist:
+                return Response({"detail": "Invalid or expired confirmation code."}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Установка нового пароля
+            user = confirmation.user
+            user.set_password(new_password)
+            user.save()
+
+            # Удаление использованного кода подтверждения
+            confirmation.delete()
+
+            return Response({"detail": "Password changed successfully."}, status=status.HTTP_200_OK)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)'''
+
+
+
+class ResetPasswordView(generics.CreateAPIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = ResetPasswordSerializer(data=request.data)
+
+        if serializer.is_valid():
+            email = serializer.validated_data.get("email")
+            confirmation_code = serializer.validated_data.get("confirmation_code")
+            new_password = serializer.validated_data.get("new_password")
+            
+            try:
+                confirmation = ConfirmationCode.objects.get(user__email=email, code=confirmation_code)
+            except ConfirmationCode.DoesNotExist:
+                return Response({"detail": "Invalid or expired confirmation code."}, status=status.HTTP_400_BAD_REQUEST)
+
+            user = confirmation.user
+            user.set_password(new_password)
+            user.save()
+
+            confirmation.delete()
+
+            return Response({"detail": "Password changed successfully."}, status=status.HTTP_200_OK)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

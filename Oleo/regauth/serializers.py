@@ -4,18 +4,21 @@ from django.core.validators import RegexValidator
 from django.core.validators import EmailValidator
 from django.utils.crypto import get_random_string
 from django.core.mail import send_mail
+from rest_framework.validators import UniqueValidator
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
 
     password = serializers.CharField(write_only=True)
     password_confirm = serializers.CharField(write_only=True)
     email = serializers.EmailField(validators=[EmailValidator(message='Enter a valid email address.')])
-    last_name = serializers.CharField(
-        required=False,
-        validators=[RegexValidator(regex='^[a-zA-Z]*$', message='Only letters are allowed.')]
-    )
     first_name = serializers.CharField(
         validators=[RegexValidator(regex='^[a-zA-Z]*$', message='Only letters are allowed.')]
+    )
+    email = serializers.EmailField(
+        validators=[
+            EmailValidator(message='Enter a valid email address.'),
+            UniqueValidator(queryset=CustomUsers.objects.all(), message='This email is already in use.')
+        ]
     )
     class Meta:
         model = CustomUsers
@@ -35,7 +38,6 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         
         user = CustomUsers.objects.create_user(
             username=validated_data['username'],
-            last_name=validated_data.get('last_name', ''),
             email=validated_data.get('email', ''),
             first_name=validated_data['first_name'],
             password=validated_data['password'],
@@ -64,3 +66,14 @@ class ChangePasswordSerializer(serializers.Serializer):
 
 class ChangeUsernameSerializer(serializers.Serializer):
     new_username = serializers.CharField(required=True)
+
+
+class ForgotPasswordSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+
+class ResetPasswordSerializer(serializers.Serializer):
+    confirmation_code = serializers.CharField(required=True)
+    email = serializers.CharField(required=True)
+
+    new_password = serializers.CharField(write_only=True, required=True)

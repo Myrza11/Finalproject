@@ -6,5 +6,7 @@ urlpatterns = [
     path('login/', CustomUserLoginView.as_view()), 
     path('change-password/', ChangePasswordView.as_view()),
     path('change-username/', ChangeUsernameView.as_view()),
+    path('forgot-password/', ForgotPasswordView.as_view()),
+    path('reset-password/', ResetPasswordView.as_view()),
     path('captcha/', CaptchaView.as_view())
 ]
