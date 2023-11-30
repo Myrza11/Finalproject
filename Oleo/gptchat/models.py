@@ -7,10 +7,11 @@ from django.contrib.auth.models import User
 
 class Dish(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    image = models.TextField()
     recipe = models.TextField()
 
     def __str__ (self):
-        return self.user
+        return f"Dish for user {self.user.username}"
 
     class Meta:
         verbose_name = 'личная еда'

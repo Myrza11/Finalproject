@@ -10,6 +10,9 @@ from .models import Dish  # Предположим, что у вас есть м
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.views import APIView
 from rest_framework import status
+from urllib.parse import urlparse
+from django.core.files.storage import default_storage
+import os
 
 
 '''class DishCreateView(generics.CreateAPIView):
@@ -108,29 +111,49 @@ class DishCreateView(APIView):
         if serializer.is_valid():
             input_text = serializer.validated_data['products']
 
-
             chat_completion = client.chat.completions.create(
                 model='gpt-3.5-turbo-1106',
                 messages=[
-                {
-                    'role': 'system',
-                    'content': "tell me a dish that can be prepared from these products",
-                },
-                {
-                    'role': 'user',
-                    'content': input_text,
-                },
-            ],
-                
+                    {
+                        'role': 'system',
+                        'content': "tell me a dish that can be prepared from these products",
+                    },
+                    {
+                        'role': 'user',
+                        'content': input_text,
+                    },
+                ],
                 temperature=1,
                 max_tokens=1000
             )
 
             response_data = {'text': chat_completion.choices[0].message.content}
-            dish = Dish(user=request.user, recipe=response_data)
+            imagestr = str(response_data)
+            response = client.images.generate(
+                model="dall-e-3",
+                prompt=imagestr,
+                size="1024x1024",
+                quality="standard",
+                n=1,
+            )
+
+            image_url = response.data[0].url
+            filename = os.path.basename(urlparse(image_url).path)
+
+            # Сохраняем изображение в папку media
+            file_path = os.path.join('media', filename)
+            with default_storage.open(file_path, 'wb') as destination:
+                response = requests.get(image_url, stream=True)
+                for chunk in response.iter_content(chunk_size=128):
+                    destination.write(chunk)
+
+            dish = Dish(user=request.user, recipe=response_data, image=image_url)
             dish.save()
+
+            # Возвращаем Response с данными о созданном блюде
             return Response(response_data, status=status.HTTP_200_OK)
         else:
+            # Возвращаем Response с ошибками валидации
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

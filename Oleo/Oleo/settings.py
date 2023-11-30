@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 from datetime import timedelta
 from django.conf import settings
@@ -183,3 +184,8 @@ EMAIL_USE_TLS = True
 # Учетные данные для аутентификации на почтовом сервере
 EMAIL_HOST_USER = 'bapaevmyrza038@gmail.com'
 EMAIL_HOST_PASSWORD = 'jcbu exoe lmqf exkc '
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
