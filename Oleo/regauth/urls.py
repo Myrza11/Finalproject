@@ -1,5 +1,6 @@
 from django.urls import path, include
 from .views import *
+from rest_framework_simplejwt.views import TokenBlacklistView
 
 urlpatterns = [
     path('register/', UserRegistrationView.as_view()),
@@ -8,5 +9,6 @@ urlpatterns = [
     path('change-username/', ChangeUsernameView.as_view()),
     path('forgot-password/', ForgotPasswordView.as_view()),
     path('reset-password/', ResetPasswordView.as_view()),
+    path('logout/', TokenBlacklistView.as_view(), name='token_logout'),
     path('captcha/', CaptchaView.as_view())
 ]
