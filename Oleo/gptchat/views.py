@@ -1,3 +1,4 @@
+from django.http import HttpResponse
 from django.shortcuts import render
 from openai import OpenAI
 import requests
@@ -12,6 +13,7 @@ from rest_framework.views import APIView
 from rest_framework import status
 from urllib.parse import urlparse
 from django.core.files.storage import default_storage
+from rest_framework.permissions import DjangoModelPermissionsOrAnonReadOnly
 import os
 
 
@@ -120,7 +122,7 @@ class DishCreateView(APIView):
                     },
                     {
                         'role': 'user',
-                        'content': input_text,
+                        'content': input_text + ' ' + 'Используя следующие ограничения: Обед, японская кухня',
                     },
                 ],
                 temperature=1,
@@ -167,3 +169,16 @@ class FoodDestroyView(generics.RetrieveDestroyAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = DishSerializer
     queryset = Dish.objects.all()
+
+
+class ImageView(APIView):
+    def get(self, image_url):
+        try:
+            # Загружаем изображение по URL
+            response = requests.get(image_url, stream=True)
+            response.raise_for_status()
+            
+            # Возвращаем изображение как HttpResponse
+            return HttpResponse(response.content, content_type=response.headers['Content-Type'])
+        except requests.exceptions.RequestException as e:
+            return HttpResponse(f"Error: {str(e)}", status=500)
