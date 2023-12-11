@@ -14,6 +14,9 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     first_name = serializers.CharField(
         validators=[RegexValidator(regex='^[a-zA-Z]*$', message='Only letters are allowed.')]
     )
+    username = serializers.CharField(
+        validators=[RegexValidator(regex='^[a-zA-Z]*$', message='Only letters are allowed.')]
+    )
     email = serializers.EmailField(
         validators=[
             EmailValidator(message='Enter a valid email address.'),
