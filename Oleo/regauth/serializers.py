@@ -12,10 +12,12 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     password_confirm = serializers.CharField(write_only=True)
     email = serializers.EmailField(validators=[EmailValidator(message='Enter a valid email address.')])
     first_name = serializers.CharField(
-        validators=[RegexValidator(regex='^[a-zA-Z]*$', message='Only letters are allowed.')]
+        validators=[RegexValidator(regex='^[a-zA-Z]*$', message='Only letters are allowed.'),
+                    UniqueValidator(queryset=CustomUsers.objects.all(), message='This first_name is already in use.')]
     )
     username = serializers.CharField(
-        validators=[RegexValidator(regex='^[a-zA-Z]*$', message='Only letters are allowed.')]
+        validators=[RegexValidator(regex='^[a-zA-Z]*$', message='Only letters are allowed.'),
+                    UniqueValidator(queryset=CustomUsers.objects.all(), message='This username is already in use.')]
     )
     email = serializers.EmailField(
         validators=[

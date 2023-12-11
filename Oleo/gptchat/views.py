@@ -21,7 +21,7 @@ import os
 
 
 client = OpenAI(
-    api_key='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'
+    api_key='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'
 )
 
 

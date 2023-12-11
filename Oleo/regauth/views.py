@@ -16,8 +16,6 @@ from rest_framework import generics, status
 from django.contrib.auth.views import LogoutView
 from rest_framework.decorators import api_view, permission_classes
 
-
-
 # //    РЕГИСТРАЦИЯ      \\
 
 class UserRegistrationView(APIView):
@@ -52,7 +50,7 @@ class UserRegistrationView(APIView):
             user = CustomUsers.objects.get(confirmation_code=confirmation_code, is_active=False)
         except CustomUsers.DoesNotExist:
             return Response({'error': 'Invalid or expired confirmation code.'}, status=status.HTTP_400_BAD_REQUEST)
-
+        
         # Подтверждение email пользователя
         user.is_active = True
         user.save()
@@ -117,7 +115,6 @@ class ChangeUsernameView(APIView):
             user = request.user
             new_username = serializer.data.get("new_username")
 
-            # Изменение username
             user.username = new_username
             user.save()
 
