@@ -4,6 +4,10 @@ from .models import Dish
 
 class IngredientSerializer(serializers.Serializer):
     products = serializers.CharField()
+    exceptions = serializers.CharField()
+    wishes = serializers.CharField()
+    class Meta:
+        fields = 'products exceptions wishes'.split()
 
 class DishSerializer(serializers.ModelSerializer):
     class Meta:

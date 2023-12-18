@@ -37,7 +37,6 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
         return data
     
-
     def create(self, validated_data):
         confirmation_code = get_random_string(length=20)
         
@@ -46,23 +45,18 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             email=validated_data.get('email', ''),
             first_name=validated_data['first_name'],
             password=validated_data['password'],
-            is_active=False,  # Устанавливаем активность пользователя в False до подтверждения
+            is_active=False, 
             confirmation_code=confirmation_code,
         )
 
-
-                # Отправка электронной почты с кодом подтверждения
         subject = 'Confirmation code'
         message = f'Your confirmation code is: {confirmation_code}'
-        from_email = 'bapaevmyrza038@gmail.com'  # Укажите ваш отправительский email
+        from_email = 'bapaevmyrza038@gmail.com'
         recipient_list = [user.email]
 
         send_mail(subject, message, from_email, recipient_list, fail_silently=False)
         return user
     
-
-
-
 
 class ChangePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField(required=True)
@@ -82,3 +76,9 @@ class ResetPasswordSerializer(serializers.Serializer):
     email = serializers.CharField(required=True)
 
     new_password = serializers.CharField(write_only=True, required=True)
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUsers
+        fields = '__all__'

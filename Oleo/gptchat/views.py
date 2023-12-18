@@ -18,23 +18,22 @@ import os
 
 
 
-
-
 client = OpenAI(
-    api_key='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'
+    api_key='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'
 )
 
 
-
 class DishCreateView(APIView):
-    serializer_class = IngredientSerializer
     permission_classes = [IsAuthenticated]
+    serializer_class = IngredientSerializer
 
     def post(self, request, *args, **kwargs):
         serializer = IngredientSerializer(data=request.data)
 
         if serializer.is_valid():
             input_text = serializer.validated_data['products']
+            input_exceptions = serializer.validated_data['exceptions']
+            input_wishes = serializer.validated_data['wishes']
 
             chat_completion = client.chat.completions.create(
                 model='gpt-3.5-turbo-1106',
@@ -45,7 +44,7 @@ class DishCreateView(APIView):
                     },
                     {
                         'role': 'user',
-                        'content': input_text,
+                        'content': input_text + ' с исключениями' + input_exceptions + ' и желательно' + input_wishes,
                     },
                 ],
                 temperature=1,

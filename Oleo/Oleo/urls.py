@@ -27,7 +27,7 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
 ...
-# //    ПОДКЛЮЧЕНИЕ SWAGGER      \\
+
 schema_view = get_schema_view(
    openapi.Info(
       title="Snippets API",
@@ -46,8 +46,6 @@ urlpatterns = [
     path('api/v1/gpt/', include('gptchat.urls')),
     path('api/v1/comments/', include('commentslike.urls')),
     path('api/v1/regauth/', include('regauth.urls')),
-
-    # //    URL ДЖОСЕРА      \\
     re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
